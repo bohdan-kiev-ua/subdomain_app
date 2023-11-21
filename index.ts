@@ -1,8 +1,8 @@
-const express = require('express')
+import express, {Response, Request} from 'express'
 import {S3Client, PutObjectCommand, GetObjectCommand} from '@aws-sdk/client-s3'
-const bodyParser = require("body-parser");
+import bodyParser from "body-parser"
 import { v1 as uuidv1 } from 'uuid';
-const subdomain = require('express-subdomain');
+import subdomain from 'express-subdomain'
 
 const app = express()
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -69,7 +69,7 @@ function getObject (Bucket: any, Key: any) {
 }
 
 
-app.post('/', (req: any, res: any) => {
+app.post('/', (req: Request, res: Response) => {
     // create buket folder
     try {
         const name = `name-${uuidv1()}`
@@ -94,7 +94,7 @@ app.post('/', (req: any, res: any) => {
 
 
 
-app.post('/upload-file', (req: any, res: any) => {
+app.post('/upload-file', (req: Request, res: Response) => {
     console.dir(req.subdomains)
     const buf = Buffer.from(req.body.fileBase64.replace(/^data:image\/\w+;base64,/, ""),'base64')
     const data = {
@@ -117,7 +117,7 @@ app.post('/upload-file', (req: any, res: any) => {
 })
 const router = express.Router()
 
-router.get('/*', async (req: any, res: any) => {
+router.get('/*', async (req: Request, res: Response) => {
     console.log(req.subdomains[0])
     await getObject(bucketName, `${req.subdomains[0]}/${Object.values(req.params).join('/')}`).then((data) => {
         res.send(data)
