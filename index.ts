@@ -16,11 +16,42 @@ const bucketName = 'bla-bla-bla12'
 const s3Client = new S3Client({
     region: 'us-east-1',
     credentials: {
-        //TODO: get from security credentials in AWS account
+        //TODO: get from security credentials in AWS S3 buket account
         accessKeyId: '',
         secretAccessKey: '',
     },
 });
+
+
+// const route53Client = new Route53Client(config);
+
+const addDomainRoute53 = (domainName: string) => {
+    console.log("added subdomain", domainName)
+    // const input = {
+//     HostedZoneId: "Z2ABCD1234EFGH",
+//     ChangeBatch: {
+//         Comment: "test comment",
+//         Changes: [
+//             {
+//                 Action: "CREATE"
+//                 ResourceRecordSet: {
+//                     Name: "${domainName}.davemakesshirts.com",
+//                     Type: "A",
+//                     TTL: 600,
+//                     ResourceRecords: [
+//                         {
+//                             Value: "host ip e.g: 192.168.0.1",
+//                         },
+//                     ],
+//                 },
+//             },
+//         ],
+//     },
+// };
+// const command = new ChangeResourceRecordSetsCommand(input);
+// return await route53Client.send(command);
+}
+
 
 function getObject (Bucket: any, Key: any) {
     const streamToString = (stream: any) =>
@@ -39,10 +70,18 @@ function getObject (Bucket: any, Key: any) {
 
 
 app.post('/', (req: any, res: any) => {
+    // create buket folder
     try {
         const name = `name-${uuidv1()}`
+
         const command = new PutObjectCommand({ Bucket: bucketName, Key: `${name}/` });
         s3Client.send(command).then((buketData) => {
+            // TODO: ADD request for AWS route-53 examples:
+            // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/route-53/command/CreateHostedZoneCommand/
+            // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/route-53/command/ChangeResourceRecordSetsCommand/
+
+            // example:
+            addDomainRoute53(name)
             res.json({
                 buketData,
                 userName: name
@@ -52,6 +91,8 @@ app.post('/', (req: any, res: any) => {
         res.send(e)
     }
 })
+
+
 
 app.post('/upload-file', (req: any, res: any) => {
     console.dir(req.subdomains)
